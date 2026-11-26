@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#142b4d">
+<title>SH ICT Academy — Student Management</title>
+<style>
+:root{--navy:#142b4d;--blue:#2563eb;--bg:#f4f7fb;--text:#162338;--muted:#64748b;--line:#e4eaf2;--green:#12805c;--red:#d64545;--amber:#b7791f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,"Noto Sans Bengali","Hind Siliguri",sans-serif}
+header{background:linear-gradient(120deg,#142b4d,#1d4f91);color:#fff;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand h1{font-size:22px;margin:0}.brand p{margin:4px 0 0;color:#cfe1ff;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:10px;padding:10px 13px;font-weight:650;cursor:pointer;background:var(--blue);color:white}.btn.secondary{background:#eaf1ff;color:#1d4f91}.btn.light{background:#fff;color:var(--navy)}.btn.danger{background:#fee2e2;color:#991b1b}.btn.small{padding:6px 9px;font-size:12px}
+nav{display:flex;gap:6px;overflow:auto;background:#fff;padding:10px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+nav button{border:0;background:transparent;color:#475569;padding:10px 12px;border-radius:9px;white-space:nowrap;cursor:pointer;font-weight:650}
+nav button.active{background:#eaf1ff;color:#1d4f91}
+main{max-width:1200px;margin:auto;padding:18px}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.card{background:white;border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:0 2px 6px #0f172a06}
+.metric .label{color:var(--muted);font-size:13px}.metric .num{font-size:25px;font-weight:800;margin-top:5px}.metric .sub{font-size:12px;color:var(--muted);margin-top:4px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 14px}.sectionhead h2{margin:0;font-size:20px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.field{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:1}.field label{font-size:12px;font-weight:700;color:#475569}.field input,.field select,.field textarea{border:1px solid #d6dfeb;border-radius:9px;padding:10px;background:#fff;font:inherit;min-width:0}.field textarea{min-height:70px}
+.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tablewrap{overflow:auto;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:680px;background:#fff}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{background:#f8fafc;color:#526176;position:sticky;top:0}tr:hover td{background:#fafcff}
+.tag{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700;background:#eaf1ff;color:#1d4f91}.tag.green{background:#dcfce7;color:#166534}.tag.red{background:#fee2e2;color:#991b1b}.tag.amber{background:#fef3c7;color:#92400e}
+.panel{margin-top:14px}.empty{padding:28px;text-align:center;color:var(--muted)}.notice{padding:12px;border-radius:10px;background:#fff7df;color:#77520c;margin:12px 0;font-size:13px}
+dialog{border:0;border-radius:16px;max-width:720px;width:calc(100% - 24px);padding:20px;box-shadow:0 20px 70px #0f172a44}dialog::backdrop{background:#0f172a77}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.modalhead h3{margin:0}.close{border:0;background:#eef2f7;border-radius:8px;padding:7px 10px;cursor:pointer}
+footer{color:var(--muted);text-align:center;padding:22px;font-size:12px}
+@media(max-width:760px){main{padding:12px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.brand h1{font-size:19px}}
+@media(max-width:460px){.formgrid{grid-template-columns:1fr}.metric .num{font-size:21px}.grid{gap:8px}.card{padding:12px}}
+</style>
+</head>
+<body>
+<div id="loginPanel" style="position:fixed;inset:0;z-index:9999;background:#f4f7fb;display:flex;align-items:center;justify-content:center;padding:18px">
+<div style="width:min(440px,100%);background:white;border-radius:18px;padding:24px;box-shadow:0 12px 40px #1232">
+<h2 style="margin-top:0;color:#142b4d">SH ICT Academy</h2><p>Student Management — Cloud Login</p>
+<div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="Admin email" required></div>
+<div class="field" style="margin-top:12px"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Firebase Auth password" required></div>
+<button class="btn" id="loginBtn" style="width:100%;margin-top:16px" onclick="login()">Login</button>
+<p id="loginMsg" style="color:#b42318"></p><small>শুধু অনুমোদিত অ্যাডমিন লগইন করতে পারবেন।</small>
+</div></div>
+<div id="cloudStatus" style="position:fixed;bottom:5px;right:8px;z-index:500;background:#e7f5ee;color:#17654b;padding:6px 10px;border-radius:20px;font-size:12px">Connecting…</div>
+
+<header><div class="brand"><h1>SH ICT Academy</h1><p>Learn ICT with Shahidul Sir · Student Management System</p></div><button class="btn secondary" onclick="logout()">Logout</button>
+<div class="actions"><button class="btn light" onclick="backup()">⬇ Backup</button><button class="btn light" onclick="document.getElementById('restoreFile').click()">⬆ Restore</button><input id="restoreFile" type="file" accept=".json" hidden onchange="restore(event)"><button class="btn secondary" onclick="exportStudentsCSV()">Students CSV</button></div></header>
+<nav id="nav">
+<button class="active" data-page="dashboard">🏠 Dashboard</button><button data-page="students">👨‍🎓 Students</button><button data-page="batches">📚 Batches</button><button data-page="fees">💳 Fees</button><button data-page="attendance">📅 Attendance</button><button data-page="exams">📝 Exams</button><button data-page="reports">📊 Reports</button><button data-page="settings">⚙ Settings</button>
+</nav>
+<main>
+<section class="page active" id="dashboard">
+<div class="sectionhead"><h2>Dashboard</h2><span id="today"></span></div>
+<div class="grid" id="metrics"></div>
+<div class="card panel"><div class="sectionhead"><h2>সাম্প্রতিক পেমেন্ট</h2><button class="btn secondary small" onclick="go('fees')">সব পেমেন্ট</button></div><div id="recentPayments"></div></div>
+<div class="card panel"><h2>Quick Actions</h2><div class="row"><button class="btn" onclick="openStudent()">＋ নতুন ভর্তি</button><button class="btn secondary" onclick="go('fees')">＋ ফি জমা</button><button class="btn secondary" onclick="go('attendance')">হাজিরা নিন</button><button class="btn secondary" onclick="go('exams')">পরীক্ষার নম্বর</button></div></div>
+</section>
+<section class="page" id="students">
+<div class="sectionhead"><h2>শিক্ষার্থী তালিকা</h2><button class="btn" onclick="openStudent()">＋ নতুন শিক্ষার্থী</button></div>
+<div class="card"><div class="row"><div class="field"><label>Search</label><input id="studentSearch" placeholder="নাম / ফোন / Student ID..." oninput="renderStudents()"></div><div class="field"><label>Batch</label><select id="studentBatchFilter" onchange="renderStudents()"><option value="">সব ব্যাচ</option></select></div><div class="field"><label>Status</label><select id="studentStatusFilter" onchange="renderStudents()"><option value="">সব</option><option>Active</option><option>Inactive</option><option>Archived</option></select></div></div><div class="tablewrap" id="studentTable"></div></div>
+</section>
+<section class="page" id="batches">
+<div class="sectionhead"><h2>Batch Management</h2><button class="btn" onclick="openBatch()">＋ নতুন Batch</button></div><div class="card"><div id="batchTable"></div></div>
+</section>
+<section class="page" id="fees">
+<div class="sectionhead"><h2>Fee Collection</h2><button class="btn" onclick="openFee()">＋ ফি জমা</button></div>
+<div class="grid" id="feeMetrics"></div><div class="card panel"><div class="row"><div class="field"><label>শিক্ষার্থী</label><select id="feeStudentFilter" onchange="renderFees()"><option value="">সব শিক্ষার্থী</option></select></div><div class="field"><label>মাস</label><input id="feeMonthFilter" type="month" onchange="renderFees()"></div></div><div id="feeTable" class="tablewrap"></div></div>
+</section>
+<section class="page" id="attendance">
+<div class="sectionhead"><h2>Attendance</h2><button class="btn" onclick="openAttendance()">＋ হাজিরা এন্ট্রি</button></div><div class="card"><div class="row"><div class="field"><label>তারিখ</label><input type="date" id="attDateFilter" onchange="renderAttendance()"></div><div class="field"><label>Batch</label><select id="attBatchFilter" onchange="renderAttendance()"><option value="">সব ব্যাচ</option></select></div></div><div id="attTable" class="tablewrap"></div></div>
+</section>
+<section class="page" id="exams">
+<div class="sectionhead"><h2>Exam & Results</h2><button class="btn" onclick="openExam()">＋ নম্বর এন্ট্রি</button></div><div class="card"><div id="examTable" class="tablewrap"></div></div>
+</section>
+<section class="page" id="reports">
+<div class="sectionhead"><h2>Reports</h2></div><div class="grid" id="reportMetrics"></div><div class="card panel"><h3>বকেয়া তালিকা</h3><div id="dueTable" class="tablewrap"></div></div><div class="card panel"><h3>ব্যাচ অনুযায়ী শিক্ষার্থী</h3><div id="batchReport" class="tablewrap"></div></div>
+</section>
+<section class="page" id="settings">
+<div class="sectionhead"><h2>Settings & Data Safety</h2></div><div class="card">
+<h3>ডেটা ব্যবস্থাপনা</h3><p>এই প্রাথমিক ভার্সনে ডেটা এই ব্রাউজারের Local Storage-এ রাখা হয়। Cloud sync এখনো যুক্ত হয়নি। অন্য ডিভাইসে নিতে Backup JSON ডাউনলোড করে Restore করুন।</p>
+<div class="row"><button class="btn" onclick="backup()">Full Backup (JSON)</button><button class="btn secondary" onclick="exportStudentsCSV()">Student CSV</button><button class="btn danger" onclick="clearData()">সব ডেটা মুছুন</button></div>
+<div class="notice">সতর্কতা: Browser data clear, app/browser change, বা device reset করলে local data হারাতে পারে। নিয়মিত Backup রাখুন। Cloud database ও login পরবর্তী ধাপে যুক্ত করতে হবে।</div>
+<h3>Academy Information</h3><div class="formgrid"><div class="field"><label>Academy Name</label><input id="academyName" value="SH ICT Academy"></div><div class="field"><label>Mentor</label><input id="mentorName" value="Shahidul Sir"></div><div class="field"><label>WhatsApp</label><input id="academyPhone" value="01533463428"></div></div><button class="btn" onclick="saveSettings()">Save settings</button></div>
+</section>
+</main>
+<footer>SH ICT Academy · Learn ICT with Shahidul Sir</footer>
+
+<dialog id="studentModal"><div class="modalhead"><h3 id="studentModalTitle">নতুন শিক্ষার্থী</h3><button class="close" onclick="closeModal('studentModal')">✕</button></div><form id="studentForm" onsubmit="saveStudent(event)"><input type="hidden" id="sId"><div class="formgrid">
+<div class="field"><label>নাম *</label><input id="sName" required></div><div class="field"><label>Student ID</label><input id="sCode" placeholder="Auto"></div><div class="field"><label>মোবাইল *</label><input id="sPhone" required></div>
+<div class="field"><label>অভিভাবকের ফোন</label><input id="sGuardian"></div><div class="field"><label>কলেজ / স্কুল</label><input id="sSchool"></div><div class="field"><label>Class / Group</label><input id="sClass" placeholder="HSC 27 / Science"></div>
+<div class="field"><label>Batch</label><select id="sBatch"></select></div><div class="field"><label>মাসিক ফি (৳)</label><input id="sMonthly" type="number" min="0" value="0"></div><div class="field"><label>ভর্তির তারিখ</label><input id="sAdmission" type="date"></div>
+<div class="field"><label>Status</label><select id="sStatus"><option>Active</option><option>Inactive</option><option>Archived</option></select></div><div class="field"><label>নোট</label><input id="sNote"></div></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn secondary" type="button" onclick="closeModal('studentModal')">Cancel</button><button class="btn" type="submit">Save Student</button></div></form></dialog>
+
+<dialog id="batchModal"><div class="modalhead"><h3>Batch</h3><button class="close" onclick="closeModal('batchModal')">✕</button></div><form onsubmit="saveBatch(event)"><input type="hidden" id="bId"><div class="formgrid"><div class="field"><label>Batch Name *</label><input id="bName" required></div><div class="field"><label>Class/Year</label><input id="bYear"></div><div class="field"><label>Schedule</label><input id="bSchedule" placeholder="Sat-Mon-Wed, 4 PM"></div><div class="field"><label>Location</label><input id="bLocation"></div></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" type="submit">Save Batch</button></div></form></dialog>
+
+<dialog id="feeModal"><div class="modalhead"><h3>ফি জমা</h3><button class="close" onclick="closeModal('feeModal')">✕</button></div><form onsubmit="saveFee(event)"><div class="formgrid"><div class="field"><label>Student *</label><select id="fStudent" required></select></div><div class="field"><label>Amount (৳) *</label><input id="fAmount" type="number" min="1" required></div><div class="field"><label>Payment Month</label><input id="fMonth" type="month" required></div><div class="field"><label>Date</label><input id="fDate" type="date" required></div><div class="field"><label>Method</label><select id="fMethod"><option>Cash</option><option>bKash</option><option>Nagad</option><option>Bank</option><option>Other</option></select></div><div class="field"><label>Transaction / Note</label><input id="fNote"></div></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" type="submit">Save Payment</button></div></form></dialog>
+
+<dialog id="attendanceModal"><div class="modalhead"><h3>Attendance Entry</h3><button class="close" onclick="closeModal('attendanceModal')">✕</button></div><form onsubmit="saveAttendance(event)"><div class="formgrid"><div class="field"><label>Date</label><input id="aDate" type="date" required></div><div class="field"><label>Batch</label><select id="aBatch" required onchange="attendanceStudents()"></select></div><div class="field"><label>Note</label><input id="aNote"></div></div><div id="attendancePick" class="panel"></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" type="submit">Save Attendance</button></div></form></dialog>
+
+<dialog id="examModal"><div class="modalhead"><h3>Exam Result Entry</h3><button class="close" onclick="closeModal('examModal')">✕</button></div><form onsubmit="saveExam(event)"><div class="formgrid"><div class="field"><label>Student *</label><select id="eStudent" required></select></div><div class="field"><label>Exam / Topic *</label><input id="eName" required></div><div class="field"><label>Date</label><input id="eDate" type="date" required></div><div class="field"><label>Marks Obtained</label><input id="eMarks" type="number" min="0" required></div><div class="field"><label>Total Marks</label><input id="eTotal" type="number" min="1" value="100" required></div><div class="field"><label>Note</label><input id="eNote"></div></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" type="submit">Save Result</button></div></form></dialog>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBqZSPlAktbxcGQ468NHz0miepA3SrWqnU",
+  authDomain: "shictacademy-sms.firebaseapp.com",
+  projectId: "shictacademy-sms",
+  storageBucket: "shictacademy-sms.firebasestorage.app",
+  messagingSenderId: "512685187554",
+  appId: "1:512685187554:web:a172c258c02369b54259bb"
+};
+const firebaseApp=firebase.initializeApp(firebaseConfig), auth=firebaseApp.auth(), cloud=firebaseApp.firestore();
+const CLOUD_DOC=cloud.collection("academyData").doc("main");
+const KEY='shictacademy_sms_v1';
+let db={students:[],batches:[],fees:[],attendance:[],exams:[],settings:{}};
+const today=()=>new Date().toISOString().slice(0,10), monthNow=()=>today().slice(0,7), uid=()=>Math.random().toString(36).slice(2,9).toUpperCase();
+async function login(){let email=byId('loginEmail').value.trim(),password=byId('loginPassword').value;byId('loginMsg').textContent='';try{await auth.signInWithEmailAndPassword(email,password)}catch(e){byId('loginMsg').textContent='Login ব্যর্থ: '+e.message}}
+function logout(){auth.signOut()}
+auth.onAuthStateChanged(async user=>{if(!user){byId('loginPanel').style.display='flex';setCloudStatus('Login প্রয়োজন');return}byId('loginPanel').style.display='none';setCloudStatus('Cloud data লোড হচ্ছে…');try{const snap=await CLOUD_DOC.get();if(snap.exists){const x=snap.data();db={students:x.students||[],batches:x.batches||[],fees:x.fees||[],attendance:x.attendance||[],exams:x.exams||[],settings:x.settings||{}};}else{loadLocal();await CLOUD_DOC.set({...db,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:user.uid});}saveLocal();renderAll();setCloudStatus('☁️ Cloud sync চালু')}catch(err){setCloudStatus('⚠️ Cloud read error');alert('Cloud data লোড হয়নি: '+err.message)}});
+function loadLocal(){try{let x=JSON.parse(localStorage.getItem(KEY)||'{}');db={...db,...x};}catch(e){}}
+function saveLocal(){localStorage.setItem(KEY,JSON.stringify(db))}
+async function save(){saveLocal();renderAll();if(auth.currentUser){try{await CLOUD_DOC.set({...db,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:auth.currentUser.uid});setCloudStatus('☁️ ক্লাউডে সেভ হয়েছে');}catch(err){setCloudStatus('⚠️ Cloud save ব্যর্থ: '+err.message);alert('Cloud-এ সেভ হয়নি। ইন্টারনেট/Rules চেক করুন।')}}}
+function setCloudStatus(s){const el=byId('cloudStatus');if(el)el.textContent=s}
+
+function money(n){return '৳ '+Number(n||0).toLocaleString('en-US')}
+function byId(id){return document.getElementById(id)}
+function closeModal(id){byId(id).close()}
+function go(page){document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));renderAll()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function activeStudents(){return db.students.filter(s=>s.status!=='Archived')}
+function paidTotal(){return db.fees.reduce((a,f)=>a+Number(f.amount||0),0)}
+function monthlyDue(s){let paid=db.fees.filter(f=>f.studentId===s.id&&f.month===monthNow()).reduce((a,f)=>a+Number(f.amount),0);return Math.max(0,Number(s.monthly||0)-paid)}
+function batchName(id){return db.batches.find(b=>b.id===id)?.name||'—'}
+function renderAll(){renderDashboard();renderStudents();renderBatches();renderFees();renderAttendance();renderExams();renderReports();refreshSelectors();if(byId('academyName'))byId('academyName').value=db.settings.name||'SH ICT Academy';if(byId('mentorName'))byId('mentorName').value=db.settings.mentor||'Shahidul Sir';if(byId('academyPhone'))byId('academyPhone').value=db.settings.phone||'01533463428'}
+function renderDashboard(){byId('today').textContent=new Date().toLocaleDateString('bn-BD',{dateStyle:'full'});let ss=activeStudents(),dues=ss.reduce((a,s)=>a+monthlyDue(s),0),present=db.attendance.filter(a=>a.date===today()&&a.status==='Present').length;
+byId('metrics').innerHTML=[['মোট শিক্ষার্থী',ss.length,'Active + Inactive'],['Active শিক্ষার্থী',db.students.filter(s=>s.status==='Active').length,'বর্তমান শিক্ষার্থী'],['এই মাসে আদায়',money(db.fees.filter(f=>f.month===monthNow()).reduce((a,f)=>a+Number(f.amount),0)),'Fee collection'],['এই মাসের সম্ভাব্য বকেয়া',money(dues),'মাসিক ফি অনুযায়ী']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="num">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+let recent=db.fees.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);byId('recentPayments').innerHTML=recent.length?table(['Date','Student','Month','Amount','Method'],recent.map(f=>[f.date,studentName(f.studentId),f.month,money(f.amount),f.method])):'<div class="empty">এখনো পেমেন্ট রেকর্ড নেই</div>'}
+function studentName(id){return db.students.find(s=>s.id===id)?.name||'Deleted student'}
+function table(headers,rows){return `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${v??''}</td>`).join('')}</tr>`).join('')}</tbody></table>`}
+function renderStudents(){let q=(byId('studentSearch')?.value||'').toLowerCase(),bf=byId('studentBatchFilter')?.value||'',sf=byId('studentStatusFilter')?.value||'';let list=db.students.filter(s=>(!q||[s.name,s.code,s.phone,s.school].join(' ').toLowerCase().includes(q))&&(!bf||s.batchId===bf)&&(!sf||s.status===sf));byId('studentTable').innerHTML=list.length?table(['ID','নাম','ফোন','Batch','মাসিক ফি','Status','Actions'],list.map(s=>[esc(s.code||s.id),esc(s.name),esc(s.phone),esc(batchName(s.batchId)),money(s.monthly),`<span class="tag ${s.status==='Active'?'green':s.status==='Archived'?'red':'amber'}">${s.status}</span>`,`<button class="btn secondary small" onclick="editStudent('${s.id}')">Edit</button> <button class="btn danger small" onclick="archiveStudent('${s.id}')">Archive</button>`])):'<div class="empty">কোনো শিক্ষার্থী পাওয়া যায়নি</div>'}
+function renderBatches(){byId('batchTable').innerHTML=db.batches.length?table(['Batch','Year/Class','Schedule','Location','Students','Actions'],db.batches.map(b=>[esc(b.name),esc(b.year),esc(b.schedule),esc(b.location),db.students.filter(s=>s.batchId===b.id&&s.status!=='Archived').length,`<button class="btn secondary small" onclick="editBatch('${b.id}')">Edit</button> <button class="btn danger small" onclick="deleteBatch('${b.id}')">Delete</button>`])):'<div class="empty">Batch তৈরি করুন</div>'}
+function renderFees(){let sf=byId('feeStudentFilter')?.value||'',mf=byId('feeMonthFilter')?.value||'',list=db.fees.filter(f=>(!sf||f.studentId===sf)&&(!mf||f.month===mf)).slice().sort((a,b)=>b.date.localeCompare(a.date));let total=list.reduce((a,f)=>a+Number(f.amount),0);byId('feeMetrics').innerHTML=[['Total Payments',list.length],['Collected',money(total)],['This Month',money(db.fees.filter(f=>f.month===monthNow()).reduce((a,f)=>a+Number(f.amount),0))],['Students with Due',activeStudents().filter(s=>monthlyDue(s)>0).length]].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="num">${x[1]}</div></div>`).join('');byId('feeTable').innerHTML=list.length?table(['Date','Student','Month','Amount','Method','Note','Receipt'],list.map(f=>[f.date,esc(studentName(f.studentId)),f.month,money(f.amount),esc(f.method),esc(f.note),`<button class="btn secondary small" onclick="receipt('${f.id}')">Print</button> <button class="btn danger small" onclick="deleteFee('${f.id}')">Delete</button>`])):'<div class="empty">পেমেন্ট রেকর্ড নেই</div>'}
+function renderAttendance(){let date=byId('attDateFilter')?.value||today(),batch=byId('attBatchFilter')?.value||'',list=db.attendance.filter(a=>a.date===date&&(!batch||a.batchId===batch));byId('attTable').innerHTML=list.length?table(['Date','Batch','Student','Status','Note'],list.map(a=>[a.date,esc(batchName(a.batchId)),esc(studentName(a.studentId)),`<span class="tag ${a.status==='Present'?'green':'red'}">${a.status}</span>`,esc(a.note)])):'<div class="empty">এই তারিখে হাজিরা নেই</div>'}
+function renderExams(){byId('examTable').innerHTML=db.exams.length?table(['Date','Student','Exam','Marks','Percentage','Note','Actions'],db.exams.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(e=>[e.date,esc(studentName(e.studentId)),esc(e.name),`${e.marks}/${e.total}`,`${Math.round(e.marks/e.total*100)}%`,esc(e.note),`<button class="btn danger small" onclick="deleteExam('${e.id}')">Delete</button>`])):'<div class="empty">পরীক্ষার ফল যোগ করুন</div>'}
+function renderReports(){let totalDue=activeStudents().reduce((a,s)=>a+monthlyDue(s),0);byId('reportMetrics').innerHTML=[['মোট শিক্ষার্থী',activeStudents().length],['মাসিক সম্ভাব্য বকেয়া',money(totalDue)],['মোট ফি আদায়',money(paidTotal())],['এই মাসে হাজিরা রেকর্ড',db.attendance.filter(a=>a.date.slice(0,7)===monthNow()).length]].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="num">${x[1]}</div></div>`).join('');let due=activeStudents().filter(s=>monthlyDue(s)>0);byId('dueTable').innerHTML=due.length?table(['Student','Phone','Batch','Monthly Fee','Paid This Month','Due'],due.map(s=>{let paid=db.fees.filter(f=>f.studentId===s.id&&f.month===monthNow()).reduce((a,f)=>a+Number(f.amount),0);return[esc(s.name),esc(s.phone),esc(batchName(s.batchId)),money(s.monthly),money(paid),money(monthlyDue(s))]})):'<div class="empty">কোনো বকেয়া নেই (বর্তমান মাসের হিসাব)</div>';byId('batchReport').innerHTML=db.batches.length?table(['Batch','Students','Collected this month'],db.batches.map(b=>[esc(b.name),db.students.filter(s=>s.batchId===b.id&&s.status!=='Archived').length,money(db.fees.filter(f=>db.students.find(s=>s.id===f.studentId)?.batchId===b.id&&f.month===monthNow()).reduce((a,f)=>a+Number(f.amount),0))])):'<div class="empty">Batch নেই</div>'}
+function refreshSelectors(){const batchOpts='<option value="">Batch নির্বাচন</option>'+db.batches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');['sBatch','aBatch'].forEach(id=>{if(byId(id))byId(id).innerHTML=batchOpts});['studentBatchFilter','attBatchFilter'].forEach(id=>{if(byId(id)){let val=byId(id).value;byId(id).innerHTML='<option value="">সব ব্যাচ</option>'+db.batches.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');byId(id).value=val}});let studentOpts='<option value="">Student নির্বাচন</option>'+activeStudents().map(s=>`<option value="${s.id}">${esc(s.name)} (${esc(s.code||s.phone)})</option>`).join('');['fStudent','eStudent'].forEach(id=>{if(byId(id))byId(id).innerHTML=studentOpts});if(byId('feeStudentFilter')){let val=byId('feeStudentFilter').value;byId('feeStudentFilter').innerHTML='<option value="">সব শিক্ষার্থী</option>'+db.students.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');byId('feeStudentFilter').value=val}}
+function openStudent(id){byId('studentForm').reset();byId('sId').value='';byId('sStatus').value='Active';byId('sAdmission').value=today();byId('studentModalTitle').textContent=id?'শিক্ষার্থী সম্পাদনা':'নতুন শিক্ষার্থী';refreshSelectors();byId('studentModal').showModal()}
+function editStudent(id){let s=db.students.find(x=>x.id===id);if(!s)return;openStudent(id);['sId','sName','sCode','sPhone','sGuardian','sSchool','sClass','sBatch','sMonthly','sAdmission','sStatus','sNote'].forEach((k,i)=>{let props=['id','name','code','phone','guardian','school','className','batchId','monthly','admission','status','note'];byId(k).value=s[props[i]]??''});}
+function saveStudent(e){e.preventDefault();let id=byId('sId').value||uid(),old=db.students.find(s=>s.id===id);let obj={id,name:byId('sName').value.trim(),code:byId('sCode').value.trim()||'SH-'+id,phone:byId('sPhone').value.trim(),guardian:byId('sGuardian').value,school:byId('sSchool').value,className:byId('sClass').value,batchId:byId('sBatch').value,monthly:Number(byId('sMonthly').value||0),admission:byId('sAdmission').value,status:byId('sStatus').value,note:byId('sNote').value};if(old)db.students=db.students.map(s=>s.id===id?obj:s);else db.students.push(obj);closeModal('studentModal');save()}
+function archiveStudent(id){if(confirm('শিক্ষার্থীকে Archived করবেন? রেকর্ড থাকবে।')){db.students=db.students.map(s=>s.id===id?{...s,status:'Archived'}:s);save()}}
+function openBatch(id){byId('bId').value='';byId('bName').value='';byId('bYear').value='';byId('bSchedule').value='';byId('bLocation').value='';byId('batchModal').showModal()}
+function editBatch(id){let b=db.batches.find(b=>b.id===id);openBatch();byId('bId').value=b.id;byId('bName').value=b.name;byId('bYear').value=b.year||'';byId('bSchedule').value=b.schedule||'';byId('bLocation').value=b.location||''}
+function saveBatch(e){e.preventDefault();let id=byId('bId').value||uid(),b={id,name:byId('bName').value,year:byId('bYear').value,schedule:byId('bSchedule').value,location:byId('bLocation').value};if(db.batches.some(x=>x.id===id))db.batches=db.batches.map(x=>x.id===id?b:x);else db.batches.push(b);closeModal('batchModal');save()}
+function deleteBatch(id){if(confirm('Batch মুছবেন? শিক্ষার্থীর রেকর্ড থাকবে, batch blank হবে।')){db.batches=db.batches.filter(b=>b.id!==id);db.students=db.students.map(s=>s.batchId===id?{...s,batchId:''}:s);save()}}
+function openFee(){byId('fMonth').value=monthNow();byId('fDate').value=today();refreshSelectors();byId('feeModal').showModal()}
+function saveFee(e){e.preventDefault();db.fees.push({id:uid(),studentId:byId('fStudent').value,amount:Number(byId('fAmount').value),month:byId('fMonth').value,date:byId('fDate').value,method:byId('fMethod').value,note:byId('fNote').value});closeModal('feeModal');save()}
+function deleteFee(id){if(confirm('এই পেমেন্ট রেকর্ড মুছবেন?')){db.fees=db.fees.filter(f=>f.id!==id);save()}}
+function receipt(id){let f=db.fees.find(x=>x.id===id),s=db.students.find(x=>x.id===f.studentId);let w=window.open('','_blank');w.document.write(`<html><head><title>Receipt</title><style>body{font-family:Arial;padding:25px}h2{text-align:center}table{width:100%;border-collapse:collapse}td{border:1px solid #ddd;padding:10px}</style></head><body>
+<div id="loginPanel" style="position:fixed;inset:0;z-index:9999;background:#f4f7fb;display:flex;align-items:center;justify-content:center;padding:18px">
+<div style="width:min(440px,100%);background:white;border-radius:18px;padding:24px;box-shadow:0 12px 40px #1232">
+<h2 style="margin-top:0;color:#142b4d">SH ICT Academy</h2><p>Student Management — Cloud Login</p>
+<div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="Admin email" required></div>
+<div class="field" style="margin-top:12px"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Firebase Auth password" required></div>
+<button class="btn" id="loginBtn" style="width:100%;margin-top:16px" onclick="login()">Login</button>
+<p id="loginMsg" style="color:#b42318"></p><small>শুধু অনুমোদিত অ্যাডমিন লগইন করতে পারবেন।</small>
+</div></div>
+<div id="cloudStatus" style="position:fixed;bottom:5px;right:8px;z-index:500;background:#e7f5ee;color:#17654b;padding:6px 10px;border-radius:20px;font-size:12px">Connecting…</div>
+<h2>${esc(db.settings.name||'SH ICT Academy')}</h2><p style="text-align:center">Payment Receipt</p><table><tr><td>Receipt ID</td><td>${f.id}</td></tr><tr><td>Student</td><td>${esc(s?.name)}</td></tr><tr><td>Student ID</td><td>${esc(s?.code)}</td></tr><tr><td>Payment Date</td><td>${f.date}</td></tr><tr><td>Month</td><td>${f.month}</td></tr><tr><td>Amount</td><td>${money(f.amount)}</td></tr><tr><td>Method</td><td>${f.method}</td></tr></table><p>Thank you.</p><script>window.print()<\/script></body></html>`);w.document.close()}
+function openAttendance(){byId('aDate').value=today();refreshSelectors();byId('attendancePick').innerHTML='';byId('attendanceModal').showModal()}
+function attendanceStudents(){let batch=byId('aBatch').value,students=activeStudents().filter(s=>!batch||s.batchId===batch);byId('attendancePick').innerHTML=students.length?students.map(s=>`<div class="row" style="padding:8px;border-bottom:1px solid #eee"><span style="flex:1">${esc(s.name)} · ${esc(s.code)}</span><select data-att="${s.id}"><option>Present</option><option>Absent</option><option>Late</option></select></div>`).join(''):'<p>এই ব্যাচে শিক্ষার্থী নেই</p>'}
+function saveAttendance(e){e.preventDefault();let date=byId('aDate').value,batch=byId('aBatch').value,note=byId('aNote').value;let picks=[...document.querySelectorAll('[data-att]')];db.attendance=db.attendance.filter(a=>!(a.date===date&&a.batchId===batch));picks.forEach(p=>db.attendance.push({id:uid(),date,batchId:batch,studentId:p.dataset.att,status:p.value,note}));closeModal('attendanceModal');save()}
+function openExam(){byId('eDate').value=today();refreshSelectors();byId('examModal').showModal()}
+function saveExam(e){e.preventDefault();let m=Number(byId('eMarks').value),t=Number(byId('eTotal').value);if(m>t){alert('Marks obtained মোট নম্বরের বেশি হতে পারে না');return}db.exams.push({id:uid(),studentId:byId('eStudent').value,name:byId('eName').value,date:byId('eDate').value,marks:m,total:t,note:byId('eNote').value});closeModal('examModal');save()}
+function deleteExam(id){if(confirm('Result মুছবেন?')){db.exams=db.exams.filter(x=>x.id!==id);save()}}
+function backup(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SH-ICT-Academy-backup-'+today()+'.json';a.click();URL.revokeObjectURL(a.href)}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!confirm('বর্তমান ডেটার সঙ্গে backup ডেটা replace করবেন?'))return;db={students:[],batches:[],fees:[],attendance:[],exams:[],settings:{},...x};save();alert('Backup restore হয়েছে')}catch(err){alert('Backup file ঠিক নয়')}};r.readAsText(f);e.target.value=''}
+function exportStudentsCSV(){let rows=[['ID','Name','Phone','Guardian','School','Class','Batch','Monthly Fee','Admission','Status'],...db.students.map(s=>[s.code||s.id,s.name,s.phone,s.guardian,s.school,s.className,batchName(s.batchId),s.monthly,s.admission,s.status])];let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');let blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SH-ICT-students-'+today()+'.csv';a.click();URL.revokeObjectURL(a.href)}
+function clearData(){if(prompt('সব ডেটা মুছতে DELETE লিখুন')==='DELETE'){localStorage.removeItem(KEY);db={students:[],batches:[],fees:[],attendance:[],exams:[],settings:{}};renderAll();if(auth.currentUser)CLOUD_DOC.set({...db,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:auth.currentUser.uid})}}
+function saveSettings(){db.settings={name:byId('academyName').value,mentor:byId('mentorName').value,phone:byId('academyPhone').value};save();alert('Settings saved')}
+byId('studentSearch').value='';byId('feeMonthFilter').value='';byId('attDateFilter').value=today();
+</script>
+</body></html>
